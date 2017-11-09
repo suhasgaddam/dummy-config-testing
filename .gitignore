@@ -1,0 +1,9 @@
+.idea/
+project/project/target
+project/project/project
+project/target/
+target/
+deploy_key
+.DS_Store
+output/*
+/secring.gpg
