@@ -1,6 +1,11 @@
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
+import scala.concurrent.Await
+import scala.concurrent.duration._
+
+import org.slf4j.MDC
+
 object Bob {
   def printer(number: Int): Unit = {
     println(s"Start : $number")
@@ -45,4 +50,28 @@ object Stating extends App {
       State.set(old)
     }
   }
+}
+
+object Mdcing extends App {
+  val logger: org.slf4j.Logger = org.slf4j.LoggerFactory.getLogger(getClass.getName.stripSuffix("$"))
+
+  def printer(number: Int): Unit = {
+    val oldContextMap = MDC.getCopyOfContextMap
+    MDC.put(number.toString, number.toString)
+
+    logger.info(s"Start: $number")
+    // Thread.sleep(1000)
+    logger.info(s"Finish: $number")
+
+    MDC.setContextMap(oldContextMap)
+  }
+
+
+  val seq: Seq[Future[Unit]] = (0 to 10).map { i =>
+    Future {
+      printer(i)
+    }
+  }
+
+  Await.result(Future.sequence(seq), 5.seconds)
 }
